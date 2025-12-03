@@ -11,6 +11,8 @@ public class SelectionBox
     private Point _lastMousePosition;
     private ResizeHandle _resizeHandle = ResizeHandle.None;
     private const int HANDLE_SIZE = 8;
+    private const int MIN_SELECTION_WIDTH = 20;
+    private const int MIN_SELECTION_HEIGHT = 10;
     
     // Relative position tracking for window resize
     private float _relativeX = 0f;
@@ -244,7 +246,7 @@ public class SelectionBox
         {
             case ResizeHandle.Right:
             case ResizeHandle.BottomRight:
-                newWidth = Math.Max(20, Math.Min(currentLocation.X - _bounds.X, imageBounds.Right - _bounds.X));
+                newWidth = Math.Max(MIN_SELECTION_WIDTH, Math.Min(currentLocation.X - _bounds.X, imageBounds.Right - _bounds.X));
                 newHeight = newWidth / 2; // Maintain 2:1 aspect ratio
                 // Ensure height doesn't exceed image bounds
                 if (_bounds.Y + newHeight > imageBounds.Bottom)
@@ -256,7 +258,7 @@ public class SelectionBox
                 
             case ResizeHandle.Left:
             case ResizeHandle.TopLeft:
-                newWidth = Math.Max(20, Math.Min(_bounds.Right - currentLocation.X, _bounds.Right - imageBounds.X));
+                newWidth = Math.Max(MIN_SELECTION_WIDTH, Math.Min(_bounds.Right - currentLocation.X, _bounds.Right - imageBounds.X));
                 newHeight = newWidth / 2;
                 newX = _bounds.Right - newWidth;
                 if (_resizeHandle == ResizeHandle.TopLeft)
@@ -274,7 +276,7 @@ public class SelectionBox
                 break;
                 
             case ResizeHandle.Bottom:
-                newHeight = Math.Max(10, Math.Min(currentLocation.Y - _bounds.Y, imageBounds.Bottom - _bounds.Y));
+                newHeight = Math.Max(MIN_SELECTION_HEIGHT, Math.Min(currentLocation.Y - _bounds.Y, imageBounds.Bottom - _bounds.Y));
                 newWidth = newHeight * 2; // Maintain 2:1 aspect ratio
                 // Ensure width doesn't exceed image bounds
                 if (_bounds.X + newWidth > imageBounds.Right)
@@ -285,7 +287,7 @@ public class SelectionBox
                 break;
                 
             case ResizeHandle.Top:
-                newHeight = Math.Max(10, Math.Min(_bounds.Bottom - currentLocation.Y, _bounds.Bottom - imageBounds.Y));
+                newHeight = Math.Max(MIN_SELECTION_HEIGHT, Math.Min(_bounds.Bottom - currentLocation.Y, _bounds.Bottom - imageBounds.Y));
                 newWidth = newHeight * 2;
                 newY = _bounds.Bottom - newHeight;
                 // Ensure width doesn't exceed image bounds
@@ -298,7 +300,7 @@ public class SelectionBox
                 break;
                 
             case ResizeHandle.TopRight:
-                newWidth = Math.Max(20, Math.Min(currentLocation.X - _bounds.X, imageBounds.Right - _bounds.X));
+                newWidth = Math.Max(MIN_SELECTION_WIDTH, Math.Min(currentLocation.X - _bounds.X, imageBounds.Right - _bounds.X));
                 newHeight = newWidth / 2;
                 newY = _bounds.Bottom - newHeight;
                 // Ensure top doesn't go above image bounds
@@ -311,7 +313,7 @@ public class SelectionBox
                 break;
                 
             case ResizeHandle.BottomLeft:
-                newWidth = Math.Max(20, Math.Min(_bounds.Right - currentLocation.X, _bounds.Right - imageBounds.X));
+                newWidth = Math.Max(MIN_SELECTION_WIDTH, Math.Min(_bounds.Right - currentLocation.X, _bounds.Right - imageBounds.X));
                 newHeight = newWidth / 2;
                 newX = _bounds.Right - newWidth;
                 // Ensure bottom doesn't go below image bounds
@@ -344,15 +346,15 @@ public class SelectionBox
         if (_bounds.Bottom > imageBounds.Bottom) _bounds.Y = imageBounds.Bottom - _bounds.Height;
         
         // Ensure minimum size
-        if (_bounds.Width < 20)
+        if (_bounds.Width < MIN_SELECTION_WIDTH)
         {
-            _bounds.Width = 20;
-            _bounds.Height = 10;
+            _bounds.Width = MIN_SELECTION_WIDTH;
+            _bounds.Height = MIN_SELECTION_HEIGHT;
         }
-        if (_bounds.Height < 10)
+        if (_bounds.Height < MIN_SELECTION_HEIGHT)
         {
-            _bounds.Height = 10;
-            _bounds.Width = 20;
+            _bounds.Height = MIN_SELECTION_HEIGHT;
+            _bounds.Width = MIN_SELECTION_WIDTH;
         }
     }
 }
