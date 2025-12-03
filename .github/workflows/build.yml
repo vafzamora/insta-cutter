@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Step 1
         run: |
-          echo "TESTE=123" >> GITHUB_ENV
+          echo "TESTE=123" >> $GITHUB_ENV
       - name: Step 2
         run: |
           echo "var: ${TESTE}"
