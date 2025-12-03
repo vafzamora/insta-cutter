@@ -1,0 +1,16 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Step 1
+        run: |
+          echo "TESTE=123" >> GITHUB_ENV
+      - name: Step 2
+        run: |
+          echo "var: ${TESTE}"
