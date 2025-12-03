@@ -7,18 +7,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      promote-environment: dev
+      promote_environment: dev
+      safe_registry_tag: v1.0.0
     
     steps:
       - name: Define image tag
         id: define-tag
         run: |
           suffix="-${GITHUB_SHA:0:7}"
-          if [[ "${{ promote-environment }}" == "dev" ]]; then
+          if [[ "${promote_environment}" == "dev" ]]; then
             suffix="${suffix}-$(date +%s%N)"
           fi
 
-          export img_tag=${{ env.safe_registry_tag }}${suffix} 
+          export img_tag=${safe_registry_tag}${suffix} 
           echo "IMG_TAG=$(echo $img_tag)" >> $GITHUB_ENV
           echo "IMG_TAG=${img_tag}" >> $GITHUB_OUTPUT    
  
