@@ -6,11 +6,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      promote-environment: dev
     
     steps:
-      - name: Step 1
+      - name: Define image tag
+        id: define-tag
         run: |
-          echo "TESTE=123" >> $GITHUB_ENV
-      - name: Step 2
+          suffix="-${GITHUB_SHA:0:7}"
+          if [[ "${{ promote-environment }}" == "dev" ]]; then
+            suffix="${suffix}-$(date +%s%N)"
+          fi
+
+          export img_tag=${{ env.safe_registry_tag }}${suffix} 
+          echo "IMG_TAG=$(echo $img_tag)" >> $GITHUB_ENV
+          echo "IMG_TAG=${img_tag}" >> $GITHUB_OUTPUT    
+ 
+      - name: Echo tag
         run: |
-          echo "var: ${TESTE}"
+          echo "Tag: ${IMG_TAG}"
