@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      promote_environment: dev
+      promote_environment: hom
       safe_registry_tag: v1.0.0
     
     steps:
