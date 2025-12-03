@@ -25,4 +25,4 @@ jobs:
  
       - name: Echo tag
         run: |
-          echo "Tag: ${steps.define-tag.IMG_TAG}"
+          echo "Tag: ${steps.define-tag.outputs.IMG_TAG}"
