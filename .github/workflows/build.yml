@@ -15,7 +15,7 @@ jobs:
         id: define-tag
         run: |
           suffix="-${GITHUB_SHA:0:7}"
-          if [[ ${{ startsWith(github.ref_name,'feature') }} = true]]; then
+          if [[ "${{ startsWith(github.ref_name,'feature') }}" = true]]; then
             suffix="${suffix}-$(date +%s%N)"
           fi
 
