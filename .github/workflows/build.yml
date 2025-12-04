@@ -19,7 +19,7 @@ jobs:
             suffix="${suffix}-$(date +%s%N)"
           fi
 
-          export img_tag=${safe_registry_tag}dev${suffix} 
+          img_tag=${safe_registry_tag}dev${suffix} 
           echo "IMG_TAG=$(echo $img_tag)" >> $GITHUB_ENV
           echo "IMG_TAG=${img_tag}" >> $GITHUB_OUTPUT    
  
