@@ -121,12 +121,16 @@ public partial class MainWindow : Window
             return;
         }
 
+        var pos = e.GetPosition(imageGrid);
         var imageBounds = GetWpfImageBounds();
-        bool handled = selectionBox.HandleMouseMove(e.GetPosition(imageGrid), imageBounds);
+        bool handled = selectionBox.HandleMouseMove(pos, imageBounds);
 
-        if (!handled)
+        // Always update cursor, even during drag/resize
+        imageGrid.Cursor = selectionBox.GetCursorForLocation(pos);
+
+        if (!handled && !imageBounds.IsEmpty && !imageBounds.Contains(pos))
         {
-            imageGrid.Cursor = selectionBox.GetCursorForLocation(e.GetPosition(imageGrid));
+            imageGrid.Cursor = Cursors.Arrow;
         }
     }
 
@@ -148,16 +152,44 @@ public partial class MainWindow : Window
 
     private System.Drawing.Rectangle GetDrawingImageBounds()
     {
-        if (drawingImage == null) return System.Drawing.Rectangle.Empty;
-        return ImageProcessor.GetImageBounds(
-            drawingImage,
-            new System.Drawing.Size((int)imageControl.ActualWidth, (int)imageControl.ActualHeight));
+        var r = GetWpfImageBounds();
+        if (r.IsEmpty) return System.Drawing.Rectangle.Empty;
+        return new System.Drawing.Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height);
     }
 
     private Rect GetWpfImageBounds()
     {
-        var db = GetDrawingImageBounds();
-        return new Rect(db.X, db.Y, db.Width, db.Height);
+        if (drawingImage == null) return Rect.Empty;
+
+        double containerWidth = imageGrid.ActualWidth;
+        double containerHeight = imageGrid.ActualHeight;
+
+        if (containerWidth <= 0 || containerHeight <= 0) return Rect.Empty;
+        if (drawingImage.Width <= 0 || drawingImage.Height <= 0) return Rect.Empty;
+
+        double imageAspect = (double)drawingImage.Width / drawingImage.Height;
+        double containerAspect = containerWidth / containerHeight;
+
+        double imgW, imgH, imgX, imgY;
+
+        if (imageAspect > containerAspect)
+        {
+            // Image is wider relative to the container — fit to width
+            imgW = containerWidth;
+            imgH = containerWidth / imageAspect;
+            imgX = 0;
+            imgY = (containerHeight - imgH) / 2.0;
+        }
+        else
+        {
+            // Image is taller relative to the container — fit to height
+            imgH = containerHeight;
+            imgW = containerHeight * imageAspect;
+            imgX = (containerWidth - imgW) / 2.0;
+            imgY = 0;
+        }
+
+        return new Rect(imgX, imgY, imgW, imgH);
     }
 
     private void InitializeSelectionBox()

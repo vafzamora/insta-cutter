@@ -11,7 +11,7 @@ public class SelectionBox
     private bool _isResizing = false;
     private Point _lastMousePosition;
     private ResizeHandle _resizeHandle = ResizeHandle.None;
-    private const double HANDLE_SIZE = 8;
+    private const double HANDLE_SIZE = 12;
     private const double MIN_SELECTION_WIDTH = 20;
     private const double MIN_SELECTION_HEIGHT = 10;
 
@@ -124,6 +124,7 @@ public class SelectionBox
         else if (_isResizing)
         {
             ResizeBox(location, imageBounds);
+            _lastMousePosition = location;
             SelectionChanged?.Invoke(this, EventArgs.Empty);
             return true;
         }
