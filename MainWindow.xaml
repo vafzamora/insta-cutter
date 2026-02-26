@@ -24,6 +24,28 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
+        <ToolBarTray DockPanel.Dock="Top"
+                     Background="{DynamicResource ToolBarBackground}">
+            <ToolBar Background="{DynamicResource ToolBarBackground}"
+                     Foreground="{DynamicResource ToolBarForeground}">
+                <Button ToolTip="Load an image" Click="LoadMenuItem_Click"
+                        Background="{DynamicResource ToolBarButtonBackground}"
+                        AutomationProperties.Name="Load"
+                        Padding="6">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"
+                               Text="&#xED25;"
+                               Foreground="{DynamicResource ToolBarForeground}"/>
+                </Button>
+                <Button ToolTip="Save cropped images" Click="SaveMenuItem_Click"
+                        Background="{DynamicResource ToolBarButtonBackground}"
+                        AutomationProperties.Name="Save"
+                        Padding="6">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"
+                               Text="&#xE74E;"
+                               Foreground="{DynamicResource ToolBarForeground}"/>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
         <Grid x:Name="imageGrid"
               Background="{DynamicResource AppBackground}"
               MouseDown="ImageGrid_MouseDown"
