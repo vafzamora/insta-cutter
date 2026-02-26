@@ -1,6 +1,8 @@
 using Microsoft.Win32;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,6 +11,10 @@ namespace insta_cutter;
 
 public partial class MainWindow : Window
 {
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
     private enum AppThemeMode { Light, Dark, System }
 
     private AppThemeMode currentTheme = AppThemeMode.System;
@@ -201,6 +207,22 @@ public partial class MainWindow : Window
             selectionBox.InitializeForImage(imageBounds);
     }
 
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        ApplyTitleBarTheme();
+    }
+
+    private void ApplyTitleBarTheme()
+    {
+        bool isDark = currentTheme == AppThemeMode.Dark ||
+                      (currentTheme == AppThemeMode.System && IsSystemDarkMode());
+        var helper = new WindowInteropHelper(this);
+        if (helper.Handle == IntPtr.Zero) return;
+        int value = isDark ? 1 : 0;
+        _ = DwmSetWindowAttribute(helper.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+    }
+
     private void ApplyTheme(AppThemeMode theme)
     {
         currentTheme = theme;
@@ -223,6 +245,8 @@ public partial class MainWindow : Window
                 Colors.White, Colors.Black,
                 Colors.White, Color.FromRgb(230, 230, 230));
         }
+
+        ApplyTitleBarTheme();
     }
 
     private static void SetThemeResources(Color bg, Color fg, Color menuBg, Color menuSelected)

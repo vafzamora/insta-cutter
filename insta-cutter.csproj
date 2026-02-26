@@ -13,6 +13,8 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
     <!-- Additional optimizations -->
     <DebuggerSupport>false</DebuggerSupport>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
