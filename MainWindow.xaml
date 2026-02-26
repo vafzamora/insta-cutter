@@ -32,19 +32,17 @@
                         Background="{DynamicResource ToolBarButtonBackground}"
                         AutomationProperties.Name="Load"
                         Padding="6">
-                    <Viewbox Width="16" Height="16">
-                        <Path Data="{StaticResource LoadIcon}"
-                              Fill="{DynamicResource ToolBarForeground}"/>
-                    </Viewbox>
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"
+                               Text="&#xED25;"
+                               Foreground="{DynamicResource ToolBarForeground}"/>
                 </Button>
                 <Button ToolTip="Save cropped images" Click="SaveMenuItem_Click"
                         Background="{DynamicResource ToolBarButtonBackground}"
                         AutomationProperties.Name="Save"
                         Padding="6">
-                    <Viewbox Width="16" Height="16">
-                        <Path Data="{StaticResource SaveIcon}"
-                              Fill="{DynamicResource ToolBarForeground}"/>
-                    </Viewbox>
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16"
+                               Text="&#xE74E;"
+                               Foreground="{DynamicResource ToolBarForeground}"/>
                 </Button>
             </ToolBar>
         </ToolBarTray>

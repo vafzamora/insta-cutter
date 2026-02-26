@@ -12,9 +12,5 @@
         <SolidColorBrush x:Key="ToolBarForeground" Color="Black"/>
         <SolidColorBrush x:Key="ToolBarButtonBackground" Color="Transparent"/>
         <SolidColorBrush x:Key="ToolBarButtonHover" Color="#DCDCDC"/>
-        <!-- Load (open folder) icon: 24x24 viewport -->
-        <Geometry x:Key="LoadIcon">M 10,4 H 4 C 2.9,4 2,4.9 2,6 L 2,18 C 2,19.1 2.9,20 4,20 H 20 C 21.1,20 22,19.1 22,18 V 8 C 22,6.9 21.1,6 20,6 H 12 Z</Geometry>
-        <!-- Save (floppy disk) icon: 24x24 viewport; outer body with notched top-right corner + label window hole -->
-        <Geometry x:Key="SaveIcon">M 3,3 H 17 L 21,7 V 21 H 3 Z M 7,3 H 15 V 9 H 7 Z</Geometry>
     </Application.Resources>
 </Application>
