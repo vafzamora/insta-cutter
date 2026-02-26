@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -26,6 +27,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
+        FixMenuDropAlignment();
         InitializeComponent();
 
         selectionVisual = new SelectionVisual(selectionBox);
@@ -270,6 +272,21 @@ public partial class MainWindow : Window
         {
             return false;
         }
+    }
+
+    // WPF honors SM_MENUDROPALIGNMENT, which on some Windows configurations
+    // is set to "right-aligned", causing top-level menu dropdowns to open to
+    // the left of (and outside) the window.  Override the private backing field
+    // so menus always drop in the LTR direction.
+    private static void FixMenuDropAlignment()
+    {
+        try
+        {
+            var field = typeof(SystemParameters)
+                .GetField("_menuDropAlignment", BindingFlags.NonPublic | BindingFlags.Static);
+            field?.SetValue(null, false);
+        }
+        catch { }
     }
 
     private sealed class SelectionVisual : FrameworkElement
