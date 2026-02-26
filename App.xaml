@@ -8,5 +8,9 @@
         <SolidColorBrush x:Key="MenuBackground" Color="White"/>
         <SolidColorBrush x:Key="MenuForeground" Color="Black"/>
         <SolidColorBrush x:Key="MenuSelectedBackground" Color="#E6E6E6"/>
+        <SolidColorBrush x:Key="ToolBarBackground" Color="#F0F0F0"/>
+        <SolidColorBrush x:Key="ToolBarForeground" Color="Black"/>
+        <SolidColorBrush x:Key="ToolBarButtonBackground" Color="Transparent"/>
+        <SolidColorBrush x:Key="ToolBarButtonHover" Color="#DCDCDC"/>
     </Application.Resources>
 </Application>

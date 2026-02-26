@@ -24,6 +24,20 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
+        <ToolBarTray DockPanel.Dock="Top"
+                     Background="{DynamicResource ToolBarBackground}">
+            <ToolBar Background="{DynamicResource ToolBarBackground}"
+                     Foreground="{DynamicResource ToolBarForeground}">
+                <Button Content="Load" ToolTip="Load an image" Click="LoadMenuItem_Click"
+                        Background="{DynamicResource ToolBarButtonBackground}"
+                        Foreground="{DynamicResource ToolBarForeground}"
+                        Padding="8,4"/>
+                <Button Content="Save" ToolTip="Save cropped images" Click="SaveMenuItem_Click"
+                        Background="{DynamicResource ToolBarButtonBackground}"
+                        Foreground="{DynamicResource ToolBarForeground}"
+                        Padding="8,4"/>
+            </ToolBar>
+        </ToolBarTray>
         <Grid x:Name="imageGrid"
               Background="{DynamicResource AppBackground}"
               MouseDown="ImageGrid_MouseDown"

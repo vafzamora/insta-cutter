@@ -239,25 +239,32 @@ public partial class MainWindow : Window
         {
             SetThemeResources(
                 Color.FromRgb(32, 32, 32), Colors.White,
+                Color.FromRgb(45, 45, 48), Color.FromRgb(70, 70, 74),
                 Color.FromRgb(45, 45, 48), Color.FromRgb(70, 70, 74));
         }
         else
         {
             SetThemeResources(
                 Colors.White, Colors.Black,
-                Colors.White, Color.FromRgb(230, 230, 230));
+                Colors.White, Color.FromRgb(230, 230, 230),
+                Color.FromRgb(240, 240, 240), Color.FromRgb(220, 220, 220));
         }
 
         ApplyTitleBarTheme();
     }
 
-    private static void SetThemeResources(Color bg, Color fg, Color menuBg, Color menuSelected)
+    private static void SetThemeResources(Color bg, Color fg, Color menuBg, Color menuSelected,
+        Color toolBarBg, Color toolBarButtonHover)
     {
         Application.Current.Resources["AppBackground"] = new SolidColorBrush(bg);
         Application.Current.Resources["AppForeground"] = new SolidColorBrush(fg);
         Application.Current.Resources["MenuBackground"] = new SolidColorBrush(menuBg);
         Application.Current.Resources["MenuForeground"] = new SolidColorBrush(fg);
         Application.Current.Resources["MenuSelectedBackground"] = new SolidColorBrush(menuSelected);
+        Application.Current.Resources["ToolBarBackground"] = new SolidColorBrush(toolBarBg);
+        Application.Current.Resources["ToolBarForeground"] = new SolidColorBrush(fg);
+        Application.Current.Resources["ToolBarButtonBackground"] = new SolidColorBrush(Colors.Transparent);
+        Application.Current.Resources["ToolBarButtonHover"] = new SolidColorBrush(toolBarButtonHover);
     }
 
     private static bool IsSystemDarkMode()
