@@ -1,10 +1,16 @@
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace insta_cutter;
 
 public static class ImageProcessor
 {
+    public static System.Drawing.Rectangle ToDrawingRectangle(System.Windows.Rect rect)
+    {
+        return new System.Drawing.Rectangle((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
+    }
+
     public static Rectangle GetImageBounds(Image image, Size containerSize)
     {
         if (image == null) return Rectangle.Empty;
