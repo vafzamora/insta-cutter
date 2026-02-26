@@ -14,6 +14,8 @@ public class SelectionBox
     private const double HANDLE_SIZE = 12;
     private const double MIN_SELECTION_WIDTH = 20;
     private const double MIN_SELECTION_HEIGHT = 10;
+    private Rect _imageBounds = Rect.Empty;
+    private static readonly SolidColorBrush OverlayBrush = CreateFrozenOverlayBrush();
 
     // Relative position tracking for window resize
     private float _relativeX = 0f;
@@ -155,6 +157,16 @@ public class SelectionBox
 
     public void Draw(DrawingContext dc)
     {
+        // Draw semi-transparent overlay over the image area outside the selection box
+        if (!_imageBounds.IsEmpty)
+        {
+            var imageGeometry = new RectangleGeometry(_imageBounds);
+            var selectionGeometry = new RectangleGeometry(_bounds);
+            var dimmingGeometry = new CombinedGeometry(GeometryCombineMode.Exclude, imageGeometry, selectionGeometry);
+            dimmingGeometry.Freeze();
+            dc.DrawGeometry(OverlayBrush, null, dimmingGeometry);
+        }
+
         // Draw the selection box
         var pen = new Pen(Brushes.Red, 2);
         dc.DrawRectangle(null, pen, _bounds);
@@ -219,6 +231,13 @@ public class SelectionBox
             new Rect(_bounds.X + _bounds.Width/2 - HANDLE_SIZE/2, _bounds.Top - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE),   // Top
             new Rect(_bounds.X + _bounds.Width/2 - HANDLE_SIZE/2, _bounds.Bottom - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE) // Bottom
         };
+    }
+
+    private static SolidColorBrush CreateFrozenOverlayBrush()
+    {
+        var brush = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0));
+        brush.Freeze();
+        return brush;
     }
 
     private void DrawResizeHandles(DrawingContext dc)
@@ -333,6 +352,7 @@ public class SelectionBox
     private void ConstrainToImageBounds(Rect imageBounds)
     {
         if (imageBounds.IsEmpty) return;
+        _imageBounds = imageBounds;
 
         double x = _bounds.X, y = _bounds.Y, w = _bounds.Width, h = _bounds.Height;
 
