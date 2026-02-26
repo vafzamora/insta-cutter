@@ -16,6 +16,8 @@ public class SelectionBox
     private const double MIN_SELECTION_HEIGHT = 10;
     private Rect _imageBounds = Rect.Empty;
     private static readonly SolidColorBrush OverlayBrush = CreateFrozenOverlayBrush();
+    private static readonly Pen YellowPen = CreateFrozenYellowPen();
+    private static readonly Pen YellowDashedPen = CreateFrozenYellowDashedPen();
 
     // Relative position tracking for window resize
     private float _relativeX = 0f;
@@ -168,8 +170,11 @@ public class SelectionBox
         }
 
         // Draw the selection box
-        var pen = new Pen(Brushes.Red, 2);
-        dc.DrawRectangle(null, pen, _bounds);
+        dc.DrawRectangle(null, YellowPen, _bounds);
+
+        // Draw vertical dashed center line
+        double centerX = _bounds.X + _bounds.Width / 2;
+        dc.DrawLine(YellowDashedPen, new Point(centerX, _bounds.Top), new Point(centerX, _bounds.Bottom));
 
         // Draw resize handles
         DrawResizeHandles(dc);
@@ -240,11 +245,25 @@ public class SelectionBox
         return brush;
     }
 
+    private static Pen CreateFrozenYellowPen()
+    {
+        var pen = new Pen(Brushes.Yellow, 2);
+        pen.Freeze();
+        return pen;
+    }
+
+    private static Pen CreateFrozenYellowDashedPen()
+    {
+        var pen = new Pen(Brushes.Yellow, 1) { DashStyle = DashStyles.Dash };
+        pen.Freeze();
+        return pen;
+    }
+
     private void DrawResizeHandles(DrawingContext dc)
     {
         foreach (Rect handle in GetResizeHandleRects())
         {
-            dc.DrawRectangle(Brushes.Red, null, handle);
+            dc.DrawRectangle(Brushes.Yellow, null, handle);
         }
     }
 
