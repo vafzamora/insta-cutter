@@ -175,6 +175,7 @@ public class SelectionBox
 
         _bounds = new Rect(x, y, width, height);
         ConstrainToImageBounds(imageBounds);
+        UpdateRelativeCoordinates(imageBounds);
         SelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 

@@ -23,6 +23,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         selectionVisual = new SelectionVisual(selectionBox);
+        selectionVisual.Visibility = Visibility.Hidden;
         imageGrid.Children.Add(selectionVisual);
 
         selectionBox.SelectionChanged += (s, e) => selectionVisual.InvalidateVisual();
@@ -47,6 +48,7 @@ public partial class MainWindow : Window
                 imageControl.Source = new BitmapImage(new Uri(dialog.FileName));
                 hasImageLoaded = true;
                 currentImagePath = dialog.FileName;
+                selectionVisual.Visibility = Visibility.Visible;
 
                 this.Title = $"MainWindow - {Path.GetFileName(dialog.FileName)}";
                 imageGrid.Cursor = Cursors.Cross;
@@ -141,7 +143,7 @@ public partial class MainWindow : Window
         imageGrid.ReleaseMouseCapture();
     }
 
-    private void ImageControl_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void ImageGrid_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (hasImageLoaded)
         {
