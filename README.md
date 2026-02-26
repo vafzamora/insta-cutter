@@ -1,6 +1,6 @@
 # Insta-Cutter
 
-A powerful Windows Forms application for precise image cropping with an elastic selection box. Perfect for creating square image pairs from rectangular selections that can be posted to Instagram as horizontal rolling carousel content.
+A powerful WPF application for precise image cropping with an elastic selection box. Perfect for creating square image pairs from rectangular selections that can be posted to Instagram as horizontal rolling carousel content.
 
 ## ✨ Features
 
@@ -25,7 +25,7 @@ A powerful Windows Forms application for precise image cropping with an elastic 
 - **Theme Support**: Light, Dark, and System theme modes
 - **Professional Menus**: Custom dark theme with optimized selection colors
 - **Responsive Design**: Clean interface that adapts to window resizing
-- **Intuitive Controls**: Standard Windows Forms experience with modern styling
+- **Intuitive Controls**: Standard WPF experience with modern styling
 
 ## 🚀 Getting Started
 
@@ -73,10 +73,9 @@ A powerful Windows Forms application for precise image cropping with an elastic 
 The application follows .NET best practices with clear separation of concerns:
 
 ### Core Classes
-- **`FormMain`**: Presentation layer handling UI events and theme management
+- **`MainWindow`**: Presentation layer handling UI events and theme management
 - **`SelectionBox`**: Business logic for elastic box functionality and coordinate management
 - **`ImageProcessor`**: Data processing layer for image operations and high-quality saving
-- **`ThemeRenderer`**: UI styling with custom menu renderers for professional dark theme
 
 ### Key Design Patterns
 - **Single Responsibility**: Each class has one focused purpose
@@ -99,7 +98,7 @@ The application follows .NET best practices with clear separation of concerns:
 
 ### Theme Engine
 - Registry-based system theme detection
-- Custom `ToolStripRenderer` for professional dark mode
+- WPF `ResourceDictionary` with dynamic `SolidColorBrush` resources
 - Optimized color palette for accessibility and visual appeal
 - Automatic theme switching with immediate visual feedback
 
@@ -107,12 +106,12 @@ The application follows .NET best practices with clear separation of concerns:
 
 ```
 insta-cutter/
-├── FormMain.cs              # Main form and presentation logic
-├── FormMain.Designer.cs     # Windows Forms designer code
+├── App.xaml                 # WPF application entry point
+├── App.xaml.cs              # Application code-behind
+├── MainWindow.xaml          # Main window XAML layout
+├── MainWindow.xaml.cs       # Main window and presentation logic
 ├── SelectionBox.cs          # Elastic selection box implementation
 ├── ImageProcessor.cs        # Image processing and file operations
-├── ThemeRenderer.cs         # Custom theme rendering classes
-├── Program.cs               # Application entry point
 ├── insta-cutter.csproj      # Project configuration
 ├── docs/
 │   └── chat.md             # Development conversation log
@@ -137,9 +136,9 @@ insta-cutter/
 ## 📋 Requirements
 
 - **Framework**: .NET 10.0
-- **UI Framework**: Windows Forms
+- **UI Framework**: WPF (Windows Presentation Foundation)
 - **Target OS**: Windows
-- **Dependencies**: None (uses only .NET standard libraries)
+- **Dependencies**: `System.Drawing.Common` (for pixel-level image processing)
 
 ## 📄 License
 
@@ -167,4 +166,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Made with ❤️ using .NET and Windows Forms**
+**Made with ❤️ using .NET and WPF**

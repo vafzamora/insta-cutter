@@ -1,0 +1,38 @@
+<Window x:Class="insta_cutter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="450" Width="800"
+        Background="{DynamicResource AppBackground}"
+        UseLayoutRounding="True"
+        FlowDirection="LeftToRight">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load" Click="LoadMenuItem_Click"/>
+                <MenuItem Header="_Save" Click="SaveMenuItem_Click"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="ExitMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Theme">
+                    <MenuItem x:Name="lightThemeMenuItem" Header="_Light"
+                              IsCheckable="True" Click="LightThemeMenuItem_Click"/>
+                    <MenuItem x:Name="darkThemeMenuItem" Header="_Dark"
+                              IsCheckable="True" Click="DarkThemeMenuItem_Click"/>
+                    <MenuItem x:Name="systemThemeMenuItem" Header="_System"
+                              IsCheckable="True" IsChecked="True" Click="SystemThemeMenuItem_Click"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <Grid x:Name="imageGrid"
+              Background="{DynamicResource AppBackground}"
+              MouseDown="ImageGrid_MouseDown"
+              MouseMove="ImageGrid_MouseMove"
+              MouseUp="ImageGrid_MouseUp"
+              Cursor="Cross"
+              ClipToBounds="True"
+              SizeChanged="ImageGrid_SizeChanged">
+            <Image x:Name="imageControl" Stretch="Uniform"/>
+        </Grid>
+    </DockPanel>
+</Window>
