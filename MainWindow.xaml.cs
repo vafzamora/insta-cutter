@@ -81,9 +81,10 @@ public partial class MainWindow : Window
 
         var dialog = new SaveFileDialog
         {
-            Filter = "PNG Files|*.png|JPEG Files|*.jpg|BMP Files|*.bmp",
-            Title = "Save Cropped Images",
+            Filter = selectionBox.IsCircular ? "PNG Files|*.png" : "PNG Files|*.png|JPEG Files|*.jpg|BMP Files|*.bmp",
+            Title = selectionBox.IsCircular ? "Save Circular Crop" : "Save Cropped Images",
             DefaultExt = "png",
+            AddExtension = true,
             FileName = Path.GetFileNameWithoutExtension(currentImagePath)
         };
 
@@ -91,13 +92,24 @@ public partial class MainWindow : Window
         {
             try
             {
-                var imageBounds = GetDrawingImageBounds();
-                var selectionRect = ImageProcessor.ToDrawingRectangle(selectionBox.Bounds);
-                var selectionInImageCoords = ImageProcessor.ConvertSelectionToImageCoordinates(
-                    selectionRect, imageBounds, drawingImage.Size);
+                if (selectionBox.IsCircular)
+                {
+                    if (!string.Equals(Path.GetExtension(dialog.FileName), ".png", StringComparison.OrdinalIgnoreCase))
+                        throw new ArgumentException("Circular crops must be saved with a .png extension.");
 
-                ImageProcessor.SaveCroppedSquareImages(drawingImage, selectionInImageCoords, dialog.FileName);
-                MessageBox.Show("Images saved successfully!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var selectionInImageCoords = ImageProcessor.ConvertCircularSelectionToImageCoordinates(
+                        selectionBox.Bounds, GetWpfImageBounds(), drawingImage.Size);
+                    ImageProcessor.SaveCircularImage(drawingImage, selectionInImageCoords, dialog.FileName);
+                }
+                else
+                {
+                    var imageBounds = GetDrawingImageBounds();
+                    var selectionRect = ImageProcessor.ToDrawingRectangle(selectionBox.Bounds);
+                    var selectionInImageCoords = ImageProcessor.ConvertSelectionToImageCoordinates(
+                        selectionRect, imageBounds, drawingImage.Size);
+                    ImageProcessor.SaveCroppedSquareImages(drawingImage, selectionInImageCoords, dialog.FileName);
+                }
+                MessageBox.Show("Crop saved successfully!", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -115,12 +127,23 @@ public partial class MainWindow : Window
     private void DarkThemeMenuItem_Click(object sender, RoutedEventArgs e) => ApplyTheme(AppThemeMode.Dark);
     private void SystemThemeMenuItem_Click(object sender, RoutedEventArgs e) => ApplyTheme(AppThemeMode.System);
 
+    private void SquarePairMenuItem_Click(object sender, RoutedEventArgs e) => SetCircularSelection(false);
+    private void CircularMenuItem_Click(object sender, RoutedEventArgs e) => SetCircularSelection(true);
+
+    private void SetCircularSelection(bool isCircular)
+    {
+        selectionBox.SetCircular(isCircular, GetWpfImageBounds());
+        squarePairMenuItem.IsChecked = !isCircular;
+        circularMenuItem.IsChecked = isCircular;
+        imageGrid.ReleaseMouseCapture();
+    }
+
     private void ImageGrid_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (!hasImageLoaded || e.LeftButton != MouseButtonState.Pressed) return;
         var imageBounds = GetWpfImageBounds();
-        selectionBox.HandleMouseDown(e.GetPosition(imageGrid), imageBounds);
-        imageGrid.CaptureMouse();
+        if (selectionBox.HandleMouseDown(e.GetPosition(imageGrid), imageBounds))
+            imageGrid.CaptureMouse();
     }
 
     private void ImageGrid_MouseMove(object sender, MouseEventArgs e)

@@ -11,6 +11,7 @@ A powerful WPF application for precise image cropping with an elastic selection 
 
 ### 🎯 Precision Selection
 - **Elastic Selection Box**: Draggable and resizable selection area with 2:1 aspect ratio
+- **Circular Selection**: Switch to a draggable circle with four resize handles
 - **Smart Constraints**: Selection automatically stays within image boundaries
 - **Visual Feedback**: Clear resize handles and cursor indicators
 - **Relative Positioning**: Selection maintains position when window is resized
@@ -20,6 +21,7 @@ A powerful WPF application for precise image cropping with an elastic selection 
 - **Quality Preservation**: Uses high-quality encoder settings for lossless saving
 - **Multiple Formats**: Save as PNG (lossless), JPEG (max quality), or BMP (uncompressed)
 - **Smart Naming**: Automatically generates `_left` and `_right` suffixed filenames
+- **Circular PNG Output**: Saves one square PNG at the chosen filename, with transparency outside the circle
 
 ### 🎨 Modern UI
 - **Theme Support**: Light, Dark, and System theme modes
@@ -58,9 +60,17 @@ A powerful WPF application for precise image cropping with an elastic selection 
 3. **Adjust Selection**: Drag to move, use handles to resize (maintains 2:1 ratio)
 4. **Save Results**: File → Save to export two square images
 
+### Circular Crop
+1. **Choose Mode**: Crop → Circular (before or after loading an image)
+2. **Position Circle**: Drag inside the circle to move it over the image
+3. **Resize Circle**: Drag any of the four yellow handles; the selection stays circular and within the image
+4. **Save PNG**: File → Save exports a square `.png` with transparent corners outside the circle
+
+Choose Crop → Square pair to return to the original two-image workflow. Circular crops only support PNG to preserve transparency.
+
 ### Selection Controls
 - **Move**: Click and drag inside the selection box
-- **Resize**: Use the red square handles around the perimeter
+- **Resize**: Use the yellow square handles around the perimeter
 - **Create New**: Click outside the current selection to start fresh
 
 ### Theme Options
@@ -71,6 +81,10 @@ A powerful WPF application for precise image cropping with an elastic selection 
 ## 🏗️ Architecture
 
 The application follows .NET best practices with clear separation of concerns:
+
+### Regression Checks
+On Windows with the .NET 10 SDK, run `dotnet run --project tests/insta-cutter.Tests.csproj`.
+These dependency-free checks cover circular selection movement and resizing, coordinate conversion, PNG transparency, and the original square-pair export.
 
 ### Core Classes
 - **`MainWindow`**: Presentation layer handling UI events and theme management
@@ -91,7 +105,7 @@ The application follows .NET best practices with clear separation of concerns:
 - Efficient memory management with proper resource disposal
 
 ### Selection System
-- Real-time aspect ratio maintenance (2:1 width:height)
+- Real-time aspect ratio maintenance (2:1 for square pairs, 1:1 for circles)
 - Comprehensive boundary checking and constraint enforcement
 - Smooth resize operations with multiple handle types
 - Relative positioning system for window resize compatibility
