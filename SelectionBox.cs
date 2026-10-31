@@ -26,6 +26,7 @@ public class SelectionBox
     private float _relativeHeight = 0.5f;
 
     public Rect Bounds => _bounds;
+    public bool IsCircular { get; private set; }
     public bool IsDragging => _isDragging;
     public bool IsResizing => _isResizing;
 
@@ -47,16 +48,34 @@ public class SelectionBox
     public void InitializeForImage(Rect imageBounds)
     {
         if (imageBounds.IsEmpty) return;
+        HandleMouseUp();
 
-        // Create selection box spanning full width of image
-        double boxHeight = imageBounds.Width / 2; // Maintain 2:1 aspect ratio
+        double boxWidth = IsCircular ? Math.Min(imageBounds.Width, imageBounds.Height) : imageBounds.Width;
+        double boxHeight = IsCircular ? boxWidth : boxWidth / 2;
 
         // Center vertically within the image
         double boxY = imageBounds.Y + (imageBounds.Height - boxHeight) / 2;
 
-        _bounds = new Rect(imageBounds.X, boxY, imageBounds.Width, boxHeight);
+        _bounds = new Rect(imageBounds.X + (imageBounds.Width - boxWidth) / 2, boxY, boxWidth, boxHeight);
 
         // Ensure it fits within image bounds
+        ConstrainToImageBounds(imageBounds);
+        UpdateRelativeCoordinates(imageBounds);
+        SelectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void SetCircular(bool isCircular, Rect imageBounds)
+    {
+        HandleMouseUp();
+        if (IsCircular == isCircular) return;
+        IsCircular = isCircular;
+        if (imageBounds.IsEmpty) return;
+
+        double centerX = _bounds.X + _bounds.Width / 2;
+        double centerY = _bounds.Y + _bounds.Height / 2;
+        double height = Math.Min(_bounds.Width, _bounds.Height);
+        double width = isCircular ? height : height * 2;
+        _bounds = new Rect(centerX - width / 2, centerY - height / 2, width, height);
         ConstrainToImageBounds(imageBounds);
         UpdateRelativeCoordinates(imageBounds);
         SelectionChanged?.Invoke(this, EventArgs.Empty);
@@ -66,9 +85,8 @@ public class SelectionBox
     {
         if (imageBounds.IsEmpty) return;
 
-        // Start with a reasonable size (100x50 for 2:1 ratio)
         double width = 100;
-        double height = 50;
+        double height = IsCircular ? width : 50;
 
         // Center the box on the click point
         double x = location.X - width / 2;
@@ -82,6 +100,7 @@ public class SelectionBox
 
     public bool HandleMouseDown(Point location, Rect imageBounds)
     {
+        if (imageBounds.IsEmpty) return false;
         _lastMousePosition = location;
 
         // Check if clicking on a resize handle
@@ -92,7 +111,7 @@ public class SelectionBox
             return true;
         }
         // Check if clicking inside the selection box
-        else if (_bounds.Contains(location))
+        else if (ContainsSelection(location))
         {
             _isDragging = true;
             return true;
@@ -100,9 +119,11 @@ public class SelectionBox
         // Create new selection box
         else
         {
+            if (!imageBounds.Contains(location)) return false;
             CreateAtPoint(location, imageBounds);
-            _isResizing = true;
-            _resizeHandle = ResizeHandle.BottomRight;
+            _isDragging = IsCircular;
+            _isResizing = !IsCircular;
+            _resizeHandle = IsCircular ? ResizeHandle.None : ResizeHandle.BottomRight;
             return true;
         }
     }
@@ -153,7 +174,7 @@ public class SelectionBox
             ResizeHandle.TopRight or ResizeHandle.BottomLeft => Cursors.SizeNESW,
             ResizeHandle.Left or ResizeHandle.Right => Cursors.SizeWE,
             ResizeHandle.Top or ResizeHandle.Bottom => Cursors.SizeNS,
-            _ => _bounds.Contains(location) ? Cursors.SizeAll : Cursors.Cross
+            _ => ContainsSelection(location) ? Cursors.SizeAll : Cursors.Cross
         };
     }
 
@@ -163,18 +184,25 @@ public class SelectionBox
         if (!_imageBounds.IsEmpty)
         {
             var imageGeometry = new RectangleGeometry(_imageBounds);
-            var selectionGeometry = new RectangleGeometry(_bounds);
+            Geometry selectionGeometry = IsCircular ? new EllipseGeometry(_bounds) : new RectangleGeometry(_bounds);
             var dimmingGeometry = new CombinedGeometry(GeometryCombineMode.Exclude, imageGeometry, selectionGeometry);
             dimmingGeometry.Freeze();
             dc.DrawGeometry(OverlayBrush, null, dimmingGeometry);
         }
 
         // Draw the selection box
-        dc.DrawRectangle(null, YellowPen, _bounds);
-
-        // Draw vertical dashed center line
-        double centerX = _bounds.X + _bounds.Width / 2;
-        dc.DrawLine(YellowDashedPen, new Point(centerX, _bounds.Top), new Point(centerX, _bounds.Bottom));
+        if (IsCircular)
+        {
+            dc.DrawEllipse(null, YellowPen,
+                new Point(_bounds.X + _bounds.Width / 2, _bounds.Y + _bounds.Height / 2),
+                _bounds.Width / 2, _bounds.Height / 2);
+        }
+        else
+        {
+            dc.DrawRectangle(null, YellowPen, _bounds);
+            double centerX = _bounds.X + _bounds.Width / 2;
+            dc.DrawLine(YellowDashedPen, new Point(centerX, _bounds.Top), new Point(centerX, _bounds.Bottom));
+        }
 
         // Draw resize handles
         DrawResizeHandles(dc);
@@ -211,16 +239,28 @@ public class SelectionBox
     {
         Rect[] handles = GetResizeHandleRects();
 
-        if (handles[0].Contains(location)) return ResizeHandle.TopLeft;
-        if (handles[1].Contains(location)) return ResizeHandle.TopRight;
-        if (handles[2].Contains(location)) return ResizeHandle.BottomLeft;
-        if (handles[3].Contains(location)) return ResizeHandle.BottomRight;
+        if (!IsCircular)
+        {
+            if (handles[0].Contains(location)) return ResizeHandle.TopLeft;
+            if (handles[1].Contains(location)) return ResizeHandle.TopRight;
+            if (handles[2].Contains(location)) return ResizeHandle.BottomLeft;
+            if (handles[3].Contains(location)) return ResizeHandle.BottomRight;
+        }
         if (handles[4].Contains(location)) return ResizeHandle.Left;
         if (handles[5].Contains(location)) return ResizeHandle.Right;
         if (handles[6].Contains(location)) return ResizeHandle.Top;
         if (handles[7].Contains(location)) return ResizeHandle.Bottom;
 
         return ResizeHandle.None;
+    }
+
+    private bool ContainsSelection(Point location)
+    {
+        if (!IsCircular) return _bounds.Contains(location);
+        double radius = _bounds.Width / 2;
+        double dx = location.X - (_bounds.X + radius);
+        double dy = location.Y - (_bounds.Y + radius);
+        return dx * dx + dy * dy <= radius * radius;
     }
 
     private Rect[] GetResizeHandleRects()
@@ -261,15 +301,21 @@ public class SelectionBox
 
     private void DrawResizeHandles(DrawingContext dc)
     {
-        foreach (Rect handle in GetResizeHandleRects())
+        Rect[] handles = GetResizeHandleRects();
+        for (int i = IsCircular ? 4 : 0; i < handles.Length; i++)
         {
-            dc.DrawRectangle(Brushes.Yellow, null, handle);
+            dc.DrawRectangle(Brushes.Yellow, null, handles[i]);
         }
     }
 
     private void ResizeBox(Point currentLocation, Rect imageBounds)
     {
         if (imageBounds.IsEmpty) return;
+        if (IsCircular)
+        {
+            ResizeCircle(currentLocation, imageBounds);
+            return;
+        }
 
         double newWidth, newHeight;
         double newX = _bounds.X;
@@ -368,6 +414,34 @@ public class SelectionBox
         UpdateRelativeCoordinates(imageBounds);
     }
 
+    private void ResizeCircle(Point location, Rect imageBounds)
+    {
+        double centerX = _bounds.X + _bounds.Width / 2;
+        double centerY = _bounds.Y + _bounds.Height / 2;
+        bool horizontal = _resizeHandle is ResizeHandle.Left or ResizeHandle.Right;
+        bool fromStart = _resizeHandle is ResizeHandle.Left or ResizeHandle.Top;
+        double anchor = horizontal
+            ? (fromStart ? _bounds.Right : _bounds.Left)
+            : (fromStart ? _bounds.Bottom : _bounds.Top);
+        double requested = fromStart
+            ? anchor - (horizontal ? location.X : location.Y)
+            : (horizontal ? location.X : location.Y) - anchor;
+        double available = horizontal
+            ? (fromStart ? anchor - imageBounds.Left : imageBounds.Right - anchor)
+            : (fromStart ? anchor - imageBounds.Top : imageBounds.Bottom - anchor);
+        double crossAxisAvailable = horizontal
+            ? 2 * Math.Min(centerY - imageBounds.Top, imageBounds.Bottom - centerY)
+            : 2 * Math.Min(centerX - imageBounds.Left, imageBounds.Right - centerX);
+        double maximum = Math.Min(available, crossAxisAvailable);
+        double diameter = Math.Clamp(requested, Math.Min(MIN_SELECTION_WIDTH, maximum), maximum);
+        double start = fromStart ? anchor - diameter : anchor;
+        _bounds = horizontal
+            ? new Rect(start, centerY - diameter / 2, diameter, diameter)
+            : new Rect(centerX - diameter / 2, start, diameter, diameter);
+        ConstrainToImageBounds(imageBounds);
+        UpdateRelativeCoordinates(imageBounds);
+    }
+
     private void ConstrainToImageBounds(Rect imageBounds)
     {
         if (imageBounds.IsEmpty) return;
@@ -375,15 +449,12 @@ public class SelectionBox
 
         double x = _bounds.X, y = _bounds.Y, w = _bounds.Width, h = _bounds.Height;
 
-        // Keep selection box within image bounds
-        if (x < imageBounds.X) x = imageBounds.X;
-        if (y < imageBounds.Y) y = imageBounds.Y;
-        if (x + w > imageBounds.Right) x = imageBounds.Right - w;
-        if (y + h > imageBounds.Bottom) y = imageBounds.Bottom - h;
-
-        // Ensure minimum size
-        if (w < MIN_SELECTION_WIDTH) { w = MIN_SELECTION_WIDTH; h = MIN_SELECTION_HEIGHT; }
-        if (h < MIN_SELECTION_HEIGHT) { h = MIN_SELECTION_HEIGHT; w = MIN_SELECTION_WIDTH; }
+        double aspectRatio = IsCircular ? 1 : 2;
+        double maximumWidth = Math.Min(imageBounds.Width, imageBounds.Height * aspectRatio);
+        w = Math.Clamp(w, Math.Min(MIN_SELECTION_WIDTH, maximumWidth), maximumWidth);
+        h = w / aspectRatio;
+        x = Math.Clamp(x, imageBounds.Left, Math.Max(imageBounds.Left, imageBounds.Right - w));
+        y = Math.Clamp(y, imageBounds.Top, Math.Max(imageBounds.Top, imageBounds.Bottom - h));
 
         _bounds = new Rect(x, y, w, h);
     }

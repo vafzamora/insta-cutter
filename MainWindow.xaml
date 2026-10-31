@@ -13,6 +13,12 @@
                 <Separator/>
                 <MenuItem Header="E_xit" Click="ExitMenuItem_Click"/>
             </MenuItem>
+            <MenuItem Header="_Crop">
+                <MenuItem x:Name="squarePairMenuItem" Header="_Square pair"
+                          IsCheckable="True" IsChecked="True" Click="SquarePairMenuItem_Click"/>
+                <MenuItem x:Name="circularMenuItem" Header="_Circular"
+                          IsCheckable="True" Click="CircularMenuItem_Click"/>
+            </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Theme">
                     <MenuItem x:Name="lightThemeMenuItem" Header="_Light"

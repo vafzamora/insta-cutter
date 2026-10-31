@@ -82,7 +82,7 @@ public static class ImageProcessor
                 string leftFileName = GetOutputFileName(baseFileName, "_left");
                 SaveImageWithQuality(leftCrop, leftFileName);
             }
-            
+
             // Create right square crop
             Rectangle rightRect = new Rectangle(rightSquareX, squareY, squareSize, squareSize);
             using (Bitmap rightCrop = CropImage(originalBitmap, rightRect))
@@ -91,6 +91,48 @@ public static class ImageProcessor
                 SaveImageWithQuality(rightCrop, rightFileName);
             }
         }
+    }
+
+    public static Rectangle ConvertCircularSelectionToImageCoordinates(
+        System.Windows.Rect selection, System.Windows.Rect imageBounds, Size actualImageSize)
+    {
+        if (selection.IsEmpty || imageBounds.IsEmpty || imageBounds.Width <= 0 || imageBounds.Height <= 0 ||
+            selection.Width <= 0 || selection.Height <= 0 || actualImageSize.Width <= 0 || actualImageSize.Height <= 0)
+            throw new ArgumentException("The image and circular selection must have positive dimensions.");
+
+        double scale = actualImageSize.Width / imageBounds.Width;
+        int diameter = (int)Math.Round(selection.Width * scale);
+        diameter = Math.Clamp(diameter, 1, Math.Min(actualImageSize.Width, actualImageSize.Height));
+        int x = (int)Math.Round((selection.X - imageBounds.X) * scale);
+        int y = (int)Math.Round((selection.Y - imageBounds.Y) * scale);
+        x = Math.Clamp(x, 0, actualImageSize.Width - diameter);
+        y = Math.Clamp(y, 0, actualImageSize.Height - diameter);
+        return new Rectangle(x, y, diameter, diameter);
+    }
+
+    public static void SaveCircularImage(Image originalImage, Rectangle selectionArea, string fileName, string? sourceFileName = null)
+    {
+        ArgumentNullException.ThrowIfNull(originalImage);
+        if (selectionArea.Width <= 0 || selectionArea.Width != selectionArea.Height ||
+            !new Rectangle(0, 0, originalImage.Width, originalImage.Height).Contains(selectionArea))
+            throw new ArgumentException("The circular selection must be square and within the image bounds.", nameof(selectionArea));
+        if (!string.Equals(Path.GetExtension(fileName), ".png", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Circular crops must be saved with a .png extension.", nameof(fileName));
+        if (sourceFileName != null && string.Equals(
+            Path.GetFullPath(fileName), Path.GetFullPath(sourceFileName), StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Choose a different filename; the loaded image cannot be overwritten.", nameof(fileName));
+
+        using var cropped = new Bitmap(selectionArea.Width, selectionArea.Height, PixelFormat.Format32bppArgb);
+        using (Graphics graphics = Graphics.FromImage(cropped))
+        using (var texture = new TextureBrush(originalImage, System.Drawing.Drawing2D.WrapMode.Clamp))
+        {
+            graphics.Clear(Color.Transparent);
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            texture.TranslateTransform(-selectionArea.X, -selectionArea.Y);
+            graphics.FillEllipse(texture, 0, 0, cropped.Width, cropped.Height);
+        }
+        SavePngLossless(cropped, fileName);
     }
 
     private static Bitmap CropImage(Bitmap source, Rectangle cropArea)
