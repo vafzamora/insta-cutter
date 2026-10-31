@@ -110,7 +110,7 @@ public static class ImageProcessor
         return new Rectangle(x, y, diameter, diameter);
     }
 
-    public static void SaveCircularImage(Image originalImage, Rectangle selectionArea, string fileName)
+    public static void SaveCircularImage(Image originalImage, Rectangle selectionArea, string fileName, string? sourceFileName = null)
     {
         ArgumentNullException.ThrowIfNull(originalImage);
         if (selectionArea.Width <= 0 || selectionArea.Width != selectionArea.Height ||
@@ -118,6 +118,9 @@ public static class ImageProcessor
             throw new ArgumentException("The circular selection must be square and within the image bounds.", nameof(selectionArea));
         if (!string.Equals(Path.GetExtension(fileName), ".png", StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Circular crops must be saved with a .png extension.", nameof(fileName));
+        if (sourceFileName != null && string.Equals(
+            Path.GetFullPath(fileName), Path.GetFullPath(sourceFileName), StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Choose a different filename; the loaded image cannot be overwritten.", nameof(fileName));
 
         using var cropped = new Bitmap(selectionArea.Width, selectionArea.Height, PixelFormat.Format32bppArgb);
         using (Graphics graphics = Graphics.FromImage(cropped))

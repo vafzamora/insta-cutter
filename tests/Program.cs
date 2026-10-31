@@ -14,6 +14,7 @@ internal static class Program
         TestSelection();
         TestCoordinates();
         TestExport();
+        TestSourceFileProtection();
         Console.WriteLine("All crop regression checks passed.");
     }
 
@@ -140,6 +141,48 @@ internal static class Program
         finally
         {
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    private static void TestSourceFileProtection()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), $"insta-cutter-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            string sourcePath = Path.Combine(directory, "source.png");
+            using (var source = new Bitmap(100, 100, PixelFormat.Format32bppArgb))
+            {
+                using (Graphics graphics = Graphics.FromImage(source))
+                    graphics.Clear(System.Drawing.Color.Red);
+                source.Save(sourcePath, ImageFormat.Png);
+            }
+            byte[] originalBytes = File.ReadAllBytes(sourcePath);
+            using (var loaded = System.Drawing.Image.FromFile(sourcePath))
+            {
+                var selection = new Rectangle(0, 0, 100, 100);
+                foreach (string outputPath in new[]
+                {
+                    sourcePath,
+                    Path.Combine(directory, ".", "source.png"),
+                    Path.Combine(directory, "SOURCE.PNG")
+                })
+                    AssertThrows<ArgumentException>(() => ImageProcessor.SaveCircularImage(
+                        loaded, selection, outputPath, sourcePath));
+
+                string output = Path.Combine(directory, "source_circle.png");
+                ImageProcessor.SaveCircularImage(loaded, selection, output, sourcePath);
+                using var saved = new Bitmap(output);
+                Assert(saved.GetPixel(50, 50).ToArgb() == System.Drawing.Color.Red.ToArgb(),
+                    "Circular export succeeds while the source file is loaded.");
+                Assert(saved.GetPixel(0, 0).A == 0, "The separate circular output retains transparent corners.");
+            }
+            Assert(File.ReadAllBytes(sourcePath).SequenceEqual(originalBytes), "The source PNG remains unchanged.");
+            Assert(Directory.GetFiles(directory).Length == 2, "Only the source and separate circular crop exist.");
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
         }
     }
 

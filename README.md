@@ -67,6 +67,7 @@ A powerful WPF application for precise image cropping with an elastic selection 
 4. **Save PNG**: File → Save exports a square `.png` with transparent corners outside the circle
 
 Choose Crop → Square pair to return to the original two-image workflow. Circular crops only support PNG to preserve transparency.
+The save dialog suggests an `_circle` suffix. Choose a separate output file: circular export cannot overwrite the loaded image.
 
 ### Selection Controls
 - **Move**: Click and drag inside the selection box

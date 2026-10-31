@@ -85,7 +85,7 @@ public partial class MainWindow : Window
             Title = selectionBox.IsCircular ? "Save Circular Crop" : "Save Cropped Images",
             DefaultExt = "png",
             AddExtension = true,
-            FileName = Path.GetFileNameWithoutExtension(currentImagePath)
+            FileName = Path.GetFileNameWithoutExtension(currentImagePath) + (selectionBox.IsCircular ? "_circle" : "")
         };
 
         if (dialog.ShowDialog() == true)
@@ -99,7 +99,7 @@ public partial class MainWindow : Window
 
                     var selectionInImageCoords = ImageProcessor.ConvertCircularSelectionToImageCoordinates(
                         selectionBox.Bounds, GetWpfImageBounds(), drawingImage.Size);
-                    ImageProcessor.SaveCircularImage(drawingImage, selectionInImageCoords, dialog.FileName);
+                    ImageProcessor.SaveCircularImage(drawingImage, selectionInImageCoords, dialog.FileName, currentImagePath);
                 }
                 else
                 {
