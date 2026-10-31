@@ -453,8 +453,8 @@ public class SelectionBox
         double maximumWidth = Math.Min(imageBounds.Width, imageBounds.Height * aspectRatio);
         w = Math.Clamp(w, Math.Min(MIN_SELECTION_WIDTH, maximumWidth), maximumWidth);
         h = w / aspectRatio;
-        x = Math.Clamp(x, imageBounds.Left, imageBounds.Right - w);
-        y = Math.Clamp(y, imageBounds.Top, imageBounds.Bottom - h);
+        x = Math.Clamp(x, imageBounds.Left, Math.Max(imageBounds.Left, imageBounds.Right - w));
+        y = Math.Clamp(y, imageBounds.Top, Math.Max(imageBounds.Top, imageBounds.Bottom - h));
 
         _bounds = new Rect(x, y, w, h);
     }
